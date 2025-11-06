@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>B02_03</title>
+    <style>
+        #editor {
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+        p {
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+        span {
+            padding: 2px;
+            cursor: pointer;
+        }
+        .selected {
+            background-color: #8e95ff;
+        }
+        #contextMenu {
+            position: fixed;
+            background: white;
+            border: 1px solid #ccc;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            padding: 5px 0;
+            display: none;
+        }
+        #contextMenu button {
+            display: block;
+            width: 100%;
+            padding: 5px 15px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            text-align: left;
+        }
+        #contextMenu button:hover {
+            background-color: #f0f0f0;
+        }
+        #editDialog {
+            position: fixed;
+            background: white;
+            border: 1px solid #ccc;
+            padding: 10px;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+            display: none;
+        }
+        .add-paragraph-btn {
+            margin: 20px;
+            padding: 5px 15px;
+        }
+    </style>
+</head>
+<body>
+    <div id="editor"></div>
+    <button class="add-paragraph-btn" onclick="addParagraph()">Add Paragraph</button>
+
+    <div id="contextMenu">
+        <button onclick="showEditDialog()">Edit</button>
+        <button onclick="addSentence()">Add Sentence</button>
+        <button onclick="deleteSelectedSentence()">Delete Sentence</button>
+        <button onclick="deleteSelectedParagraph()">Delete Paragraph</button>
+    </div>
+
+    <div id="editDialog">
+        <input type="text" id="editInput" placeholder="Enter text">
+        <button onclick="updateSelectedSentence()">Save</button>
+        <button onclick="closeEditDialog()">Cancel</button>
+    </div>
+
+    <script>
+        let selectedSentence = null;
+        const editor = document.getElementById('editor');
+        const contextMenu = document.getElementById('contextMenu');
+        const editDialog = document.getElementById('editDialog');
+
+        function addParagraph() {
+            const p = document.createElement('p');
+            const span = document.createElement('span');
+            span.textContent = 'New sentence';
+            p.appendChild(span);
+            editor.appendChild(p);
+            setupSentenceListeners(span);
+        }
+
+        function addSentence() {
+            const span = document.createElement('span');
+            span.textContent = 'New sentence';
+            setupSentenceListeners(span);
+
+            if (selectedSentence) {
+                selectedSentence.parentNode.insertBefore(span, selectedSentence);
+            } else {
+                const lastParagraph = editor.lastElementChild;
+                if (lastParagraph) {
+                    lastParagraph.appendChild(span);
+                } else {
+                    addParagraph();
+                }
+            }
+        }
+
+        function setupSentenceListeners(span) {
+            span.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (selectedSentence === span) {
+                    // Deselect if clicking the same sentence
+                    span.classList.remove('selected');
+                    selectedSentence = null;
+                } else {
+                    // Select new sentence and deselect old one
+                    if (selectedSentence) {
+                        selectedSentence.classList.remove('selected');
+                    }
+                    span.classList.add('selected');
+                    selectedSentence = span;
+                }
+            });
+
+            span.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                if (selectedSentence) {
+                    selectedSentence.classList.remove('selected');
+                }
+                span.classList.add('selected');
+                selectedSentence = span;
+                showContextMenu(e.pageX, e.pageY);
+            });
+        }
+
+        function showContextMenu(x, y) {
+            contextMenu.style.display = 'block';
+            contextMenu.style.left = x + 'px';
+            contextMenu.style.top = y + 'px';
+        }
+
+        function showEditDialog() {
+            if (selectedSentence) {
+                editDialog.style.display = 'block';
+                const rect = selectedSentence.getBoundingClientRect();
+                editDialog.style.left = rect.left + 'px';
+                editDialog.style.top = (rect.bottom + 5) + 'px';
+                document.getElementById('editInput').value = selectedSentence.textContent;
+            }
+            hideContextMenu();
+        }
+
+        function closeEditDialog() {
+            editDialog.style.display = 'none';
+        }
+
+        function updateSelectedSentence() {
+            if (selectedSentence) {
+                selectedSentence.textContent = document.getElementById('editInput').value;
+                closeEditDialog();
+            }
+        }
+
+        function deleteSelectedSentence() {
+            if (selectedSentence) {
+                const paragraph = selectedSentence.parentNode;
+                selectedSentence.remove();
+                if (paragraph.children.length === 0) {
+                    paragraph.remove();
+                }
+                selectedSentence = null;
+            }
+            hideContextMenu();
+        }
+
+        function deleteSelectedParagraph() {
+            if (selectedSentence) {
+                selectedSentence.parentNode.remove();
+                selectedSentence = null;
+            }
+            hideContextMenu();
+        }
+
+        function hideContextMenu() {
+            contextMenu.style.display = 'none';
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!contextMenu.contains(e.target) && !editDialog.contains(e.target)) {
+                hideContextMenu();
+                closeEditDialog();
+                // Deselect when clicking outside
+                if (!e.target.closest('span')) {
+                    if (selectedSentence) {
+                        selectedSentence.classList.remove('selected');
+                        selectedSentence = null;
+                    }
+                }
+            }
+        });
+
+        addParagraph();
+    </script>
+</body>
+</html>

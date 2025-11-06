@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>B02_02</title>
+</head>
+<body>
+
+    <div id="content">
+        <input type="text" id="messageInput">
+        <button onclick="saveMessage()">Save</button>
+        <div id="savedMessage"></div>
+    </div>
+
+    <script>
+        function saveMessage() {
+            const message = document.getElementById('messageInput').value;
+            sessionStorage.setItem('message', message);
+        }
+
+        function displayMessage() {
+            const savedMessage = sessionStorage.getItem('message');
+            if (savedMessage) {
+                document.getElementById('savedMessage').textContent = savedMessage;
+            }
+        }
+
+        displayMessage();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B02_03</title>
+    <link rel="stylesheet" href="B02_03.css">
+</head>
+<body>
+    <div id="editor"></div>
+    <button class="add-paragraph-btn" onclick="TextEditor.addParagraph()">Add Paragraph</button>
+
+    <div id="contextMenu">
+        <button onclick="TextEditor.showEditDialog()">Edit</button>
+        <button onclick="TextEditor.addSentence()">Add Sentence</button>
+        <button onclick="TextEditor.deleteSelectedSentence()">Delete Sentence</button>
+        <button onclick="TextEditor.deleteSelectedParagraph()">Delete Paragraph</button>
+    </div>
+
+    <div id="editDialog">
+        <input type="text" id="editInput" placeholder="Enter text">
+        <button onclick="TextEditor.updateSelectedSentence()">Save</button>
+        <button onclick="TextEditor.closeEditDialog()">Cancel</button>
+    </div>
+
+    <script src="B02_03.js"></script>
+</body>
+</html>
